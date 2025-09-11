@@ -1,0 +1,5 @@
+{
+  "jupyter.jupyterServerType": "remote",
+  "jupyter.remoteServer.uri": "http://127.0.0.1:11401",
+  "jupyter.notebook.defaultKernel": "my_ir"
+}

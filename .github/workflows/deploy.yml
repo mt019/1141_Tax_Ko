@@ -1,0 +1,68 @@
+# .github/workflows/deploy.yml
+
+
+name: deploy-mkdocs
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true   # 若 notebooks 有用 LFS，必須打開
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # 將 repo 根的 ./notebooks 同步到 MkDocs 內容目錄
+      - name: Sync notebooks into mkdocs content
+        run: |
+          mkdir -p mkdocs/My_Notes/notebooks
+          rsync -av --delete notebooks/ mkdocs/My_Notes/notebooks/ || true
+          echo "Synced notebooks -> mkdocs/My_Notes/notebooks"
+          find mkdocs/My_Notes/notebooks -maxdepth 2 -type f -name "*.ipynb" -print || true
+
+      # 建置 MkDocs Docker 映像（我的 mkdocs/Dockerfile）
+      - name: Build mkdocs image
+        run: docker build -t mkdocs-site ./mkdocs
+
+      # 以容器建置靜態站台到 mkdocs/site
+      - name: MkDocs build (Docker)
+        run: |
+          docker run --rm \
+            -v "$PWD/mkdocs":/docs \
+            mkdocs-site build --clean
+          test -f mkdocs/site/index.html
+          echo "---- built site preview ----"
+          find mkdocs/site -maxdepth 2 -type f | head -n 50
+
+      # 上傳產物給 Pages
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: mkdocs/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

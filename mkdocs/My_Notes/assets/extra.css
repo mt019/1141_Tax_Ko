@@ -1,0 +1,36 @@
+:root {
+  --md-primary-fg-color: #de5871cb;       /* 粉红（hotpink） */
+  --md-accent-fg-color: #5a5a5a;        /* 优雅深灰 */
+  --md-default-bg-color: #fff0f5;       /* 淡粉底色 (lavenderblush) */
+}
+
+/* 滚动条自定义 */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #3a2f2f;    /* 棕深灰轨道 */
+}
+::-webkit-scrollbar-thumb {
+  background: #a8a8a8;    /* 浅灰滑块 */
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* 讓右側 TOC 的滾動更順暢 */
+.md-sidebar--secondary .md-sidebar__scrollwrap { scroll-behavior: smooth; }
+
+
+/* 強制所有標題層級加粗 */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5,
+.md-typeset h6 {
+  font-weight: 700 !important; /* 700 = 粗體 */
+}
+
+
